@@ -1,0 +1,94 @@
+{include file="public/head"}
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">首页</a>
+                <a href="">网站设置</a>
+                <a>
+                    <cite>网站设置</cite></a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+<div class="layui-fluid" style="margin-top: 50px;margin-left: 100px;">
+    <div class="layui-row">
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">
+                    网站名称
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" name="title_name"
+                           autocomplete="off" value="{$config.title_name}" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">
+                    是否运行
+                </label>
+                <div class="layui-input-inline">
+                    <input type="checkbox" name="is_show" value="0" lay-skin="switch" lay-text="开启|关闭" {if condition="$config.is_show eq 0"}checked{/if}>
+                </div>
+            </div>
+
+            <div class="layui-form-item layui-form-text">
+                <label for="desc" class="layui-form-label">禁止访问提示</label>
+                <div class="layui-input-block" style="width: 500px;">
+                    <textarea placeholder="请输入内容" id="desc" name="desc" class="layui-textarea">{$config.desc}</textarea>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">
+                </label>
+                <button  class="layui-btn" lay-filter="save" lay-submit="">
+                    更新
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>layui.use(['form','upload','layer'],
+    function() {
+        $ = layui.jquery;
+        var form = layui.form,
+            layer = layui.layer;
+        var upload = layui.upload;
+
+        //自定义验证规则
+        form.verify({
+
+        });
+
+
+        //监听提交
+        form.on('submit(save)',
+            function(data) {
+                console.log(data);
+                $.ajax({
+                    url:"{:url('setup/save')}",
+                    type:'post',
+                    dataType: "json",
+                    data:data.field,
+                    beforeSend: function() {
+                        var index = layer.load(2);
+                        layer.close(index);
+                    },
+                    success:function (res) {
+                        if(res.code==1){
+                            layer.msg(res.msg,{icon:1,time:1500},function() {
+                                location.reload();
+                            });
+                        }else{
+                            layer.msg(res.msg);
+                        }
+                    },
+                    error:function (res) {
+                        layer.msg(res.msg);
+                    }
+                });
+                return false;
+            });
+    });</script>
+{include file="public/footer"}

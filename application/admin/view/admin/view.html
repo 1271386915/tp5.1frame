@@ -1,0 +1,74 @@
+{include file="public/head"}
+<div class="layui-fluid">
+    <div class="layui-row">
+        <table class="layui-table">
+            <colgroup>
+                <col width="50">
+                <col width="150">
+                <col width="50">
+                <col width="150">
+            </colgroup>
+            <thead>
+
+            <tr>
+                <td>登录账号：</td>
+                <td style="background: #fff;">{$info.name}</td>
+
+                <td>真实姓名：</td>
+                <td style="background: #fff;">{$info.actualname}</td>
+            </tr>
+
+            <tr>
+                <td>身份证号：</td>
+                <td style="background: #fff;">
+                    {$info.id_card}
+                </td>
+                <td>角&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;色：</td>
+                <td style="background: #fff;">{$info.role_name}</td>
+            </tr>
+
+            <tr>
+                <td>联系地址：</td>
+                <td style="background: #fff;">
+                    {$info.address}
+                </td>
+                <td>年&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;龄：</td>
+                <td style="background: #fff;">{$info.age}岁</td>
+            </tr>
+
+            <tr>
+                <td>联系电话：</td>
+                <td style="background: #fff;">{$info.phone}</td>
+
+                <td>联系邮箱：</td>
+                <td style="background: #fff;">{$info.email}</td>
+            </tr>
+
+            <tr>
+                <td>状&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;态：</td>
+                <td style="background: #fff;">
+                    {if $info.status == 0}
+                    正常
+                    {else}
+                    禁用
+                    {/if}
+                </td>
+
+                <td>最近登录IP：</td>
+                <td style="background: #fff;">{$info.IP_login}</td>
+            </tr>
+
+            <tr>
+                <td>添加时间：</td>
+                <td style="background: #fff;">{$info.addtime|date='Y-m-d H:i:s'}</td>
+
+                <td>最近登录时间：</td>
+                <td style="background: #fff;">{$info.logintime|date='Y-m-d H:i:s'}
+                </td>
+            </tr>
+
+            </thead>
+        </table>
+    </div>
+</div>
+{include file="public/footer"}

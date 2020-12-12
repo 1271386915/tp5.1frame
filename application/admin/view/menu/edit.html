@@ -1,0 +1,140 @@
+{include file='public/head'/}
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form action="" method="post" class="layui-form">
+            <div class="layui-form-item">
+                <label for="name" class="layui-form-label">
+                    <span class="x-red">*</span>菜单名称
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="name" name="auth_name" required="" value="{$auth.auth_name}" lay-verify="required"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <!--顶级目录显示-->
+            {if $auth.auth_pid==0}
+                <div class="layui-form-item">
+                    <label for="icon_font" class="layui-form-label">
+                        图标
+                    </label>
+                    <div class="layui-input-inline">
+                        <input type="text" id="icon_font" name="icon_font" required="" value="{$auth.icon_font}" lay-verify="required"
+                               autocomplete="off" class="layui-input">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux">
+                        <span class="x-red">*</span>如：fa fa-user-o
+                    </div>
+                </div>
+            {/if}
+
+            {if $auth.auth_pid==0}
+            <div class="layui-form-item">
+                <label for="sort" class="layui-form-label">
+                    排序
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="sort" name="sort" required="" value="{$auth.sort}" lay-verify="required"
+                           autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-red">*</span>只能输入纯数字
+                </div>
+            </div>
+            {/if}
+
+            <!--二级目录显示-->
+            {if $auth.auth_pid!=0}
+            <div class="layui-form-item">
+                <label for="auth_path" class="layui-form-label">
+                    操作路径
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="auth_path" name="auth_path" required="" value="{$auth.auth_path}" lay-verify="required"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            {/if}
+
+            <!--隐藏域-->
+            <input type="hidden" name="id" value="{$auth.id}">
+            <input type="hidden" name="auth_pid" value="{$auth.auth_pid}">
+
+            <!--顶级目录-->
+            {if $auth.auth_pid==0}
+                <input type="hidden" name="auth_level" value="0">
+                <input type="hidden" name="auth_pid" value="0">
+            {/if}
+
+            <!--二级目录-->
+            {if $auth.auth_pid==1}
+            <input type="hidden" name="auth_level" value="1">
+            {/if}
+
+            <!--三级目录-->
+            {if $auth.auth_pid==2}
+                <input type="hidden" name="auth_level" value="2">
+            {/if}
+
+            <div class="layui-form-item">
+                <label for="name" class="layui-form-label">
+                </label>
+                <button class="layui-btn" lay-filter="update" lay-submit="">
+                    修改
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    layui.use(['form','layer'], function(){
+        $ = layui.jquery;
+        var form = layui.form
+            ,layer = layui.layer;
+
+        //监听提交
+        form.on('submit(update)', function(data){
+            console.log(data);
+            $.ajax({
+                url:"{:url('menu/update')}",
+                type:'post',
+                dataType: "json",
+                data:data.field,
+                beforeSend: function() {
+                    var index = layer.load(2);
+                    layer.close(index);
+                },
+                success:function (res) {
+                    if(res.code==1){
+                        layer.msg(res.msg, {
+                                time: 1000
+                            },
+                            function() {
+                                //关闭当前frame
+                                xadmin.close();
+                                // 可以对父窗口进行刷新
+                                xadmin.father_reload();
+                            });
+                    }
+                },
+                error:function (res) {
+                    layer.msg(res.msg);
+                }
+            });
+            return false;
+        });
+
+
+        form.on('checkbox(father)', function(data){
+
+            if(data.elem.checked){
+                $(data.elem).parent().siblings('td').find('input').prop("checked", true);
+                form.render();
+            }else{
+                $(data.elem).parent().siblings('td').find('input').prop("checked", false);
+                form.render();
+            }
+        });
+    });
+</script>
+{include file="public/footer"}

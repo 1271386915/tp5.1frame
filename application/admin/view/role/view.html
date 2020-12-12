@@ -1,0 +1,36 @@
+{include file="public/head"}
+<div class="layui-fluid">
+    <div class="layui-row">
+        <table class="layui-table">
+            <colgroup>
+                <col width="50">
+                <col width="150">
+                <col width="50">
+                <col width="150">
+            </colgroup>
+            <thead>
+
+            <tr>
+                <td>角色名称：</td>
+                <td style="background: #fff;">{$info.role_name}</td>
+
+                <td>角色备注：</td>
+                <td style="background: #fff;">{$info.description}</td>
+            </tr>
+            {foreach $info.auth_list as $k=>$v}
+                <tr>
+                    <td colspan="2">{$v.auth_name}：</td>
+
+                        <td colspan="2" style="background: #fff;">
+                            {foreach $v.auth_role_list as $key=>$value}
+                                {$value.auth_name};
+                            {/foreach}
+                        </td>
+
+                </tr>
+            {/foreach}
+            </thead>
+        </table>
+    </div>
+</div>
+{include file="public/footer"}

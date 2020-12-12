@@ -1,0 +1,192 @@
+{include file='public/head'/}
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form">
+
+            <div class="layui-form-item">
+                <label for="name" class="layui-form-label">
+                    <span class="x-red">*</span>用户名
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="name" name="username" required="" lay-verify="required"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="name" class="layui-form-label">
+                    <span class="x-red">*</span>姓&nbsp;&nbsp;名
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" name="actualname" required="" lay-verify="required"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="name" class="layui-form-label">
+                    <span class="x-red">*</span>身份证
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" name="id_card" id="id_card" required="" lay-verify="id_card"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="L_pass" class="layui-form-label">
+                    <span class="x-red">*</span>密码
+                </label>
+                <div class="layui-input-inline">
+                    <input type="password" id="L_pass" name="pass" required="" lay-verify="pass"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="L_repass" class="layui-form-label">
+                    <span class="x-red">*</span>确认密码
+                </label>
+                <div class="layui-input-inline">
+                    <input type="password" id="L_repass" name="repass" required="" lay-verify="repass"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="phone" class="layui-form-label">
+                    <span class="x-red">*</span>手机
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="phone" name="phone" required="" lay-verify="phone"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="L_email" class="layui-form-label">
+                    <span class="x-red">*</span>邮箱
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="L_email" name="email" required="" lay-verify="email"
+                           autocomplete="off" class="layui-input">
+                </div>
+
+            </div>
+
+            <div class="layui-form-item">
+                <label for="L_email" class="layui-form-label">
+                    <span class="x-red">*</span>年龄
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" name="age" required=""
+                           autocomplete="off" lay-verify="number" class="layui-input">
+                </div>
+
+            </div>
+
+            <div class="layui-form-item">
+                <label for="L_email" class="layui-form-label">
+                    <span class="x-red">*</span>住址
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" name="address" required=""
+                           autocomplete="off" class="layui-input">
+                </div>
+
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">
+                    <span class="x-red">*</span>角色</label>
+                <div class="layui-input-inline">
+                    <select id="shipping" name="role" class="valid">
+                        <option value="shentong">选择角色</option>
+                        {foreach $role as $key=>$value}
+                        <option value="{$value.id}">{$value.role_name}</option>
+                        {/foreach}
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="L_email" class="layui-form-label">
+                    <span class="x-red">*</span>状态
+                </label>
+                <div class="layui-input-inline">
+                    <input type="checkbox" name="status" lay-skin="switch" lay-text="启用|暂停">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="L_repass" class="layui-form-label">
+                </label>
+                <button class="layui-btn" lay-filter="add" lay-submit="">
+                    增加
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+<script>layui.use(['form', 'layer'],
+    function () {
+        $ = layui.jquery;
+        var form = layui.form,
+            layer = layui.layer;
+
+        //自定义验证规则
+        form.verify({
+            repass: function (value) {
+                if ($('#L_pass').val() != $('#L_repass').val()) {
+                    return '两次密码不一致';
+                }
+            },
+            phone: function (value) {
+                if (value.length != 11) {
+                    return '手机号不正确';
+                }
+            },
+            id_card: function (value) {
+                if (value.length != 18) {
+                    return '身份证号不正确';
+                }
+            }
+        });
+
+        //监听提交
+        form.on('submit(add)',
+            function (data) {
+                $.ajax({
+                    url: "{:url('admin/save')}",
+                    type: 'post',
+                    dataType: "json",
+                    data: data.field,
+                    beforeSend: function () {
+                        var index = layer.load(2);
+                        layer.close(index);
+                    },
+                    success: function (res) {
+                        if (res.code == 1) {
+                            layer.msg("增加成功", {
+                                    time: 1000
+                                },
+                                function () {
+                                    //关闭当前frame
+                                    xadmin.close();
+                                    // 可以对父窗口进行刷新
+                                    xadmin.father_reload();
+                                });
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    },
+                    error: function (res) {
+                        layer.msg(res.msg);
+                    }
+                });
+                return false;
+            });
+
+    });</script>
+{include file="public/footer"}

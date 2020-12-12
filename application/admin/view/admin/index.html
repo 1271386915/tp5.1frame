@@ -1,0 +1,347 @@
+{include file="public/head"}
+<div class="x-nav">
+            <span class="layui-breadcrumb">
+                <a href="">首页</a>
+                <a href="">管理员管理</a>
+                <a>
+                    <cite>管理员列表</cite></a>
+            </span>
+    <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right"
+       onclick="location.reload()" title="刷新">
+        <i class="layui-icon layui-icon-refresh" style="line-height:30px"></i>
+    </a>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body ">
+                    <form class="layui-form layui-col-space5">
+                        <div class="layui-input-inline layui-show-xs-block">
+                            <select name="roleid" id="roleid">
+                                <option value="">选择角色</option>
+                                {foreach role as $key=>$value}
+                                    <option value="{$value.id}">{$value.role_name}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+
+                        <div class="layui-inline layui-show-xs-block">
+                            <input type="text" name="title" value="" id="title" placeholder="请输入关键词" autocomplete="off"
+                                   class="layui-input"></div>
+                        <div class="layui-inline layui-show-xs-block">
+                            <a class="btn layui-btn" id="search" data-type="reload">
+                                <i class="layui-icon">&#xe615;</i></a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="layui-card-body ">
+                    <table class="layui-table" id="demo" lay-filter="demo"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    layui.use(['form', 'laydate', 'table'], function () {
+        var form = layui.form, $ = layui.jquery;
+        var table = layui.table;
+
+        table.render({
+            elem: '#demo'
+            , url: "{:url('admin/getadminlist')}"
+            , page: true //开启分页
+            , where: {}
+            , toolbar: '#titleTpl'
+            , limit: 10
+            , cols: [[
+                {field: 'id', type: 'checkbox', title: 'ID', fixed: 'left'}
+                , {field: 'name', title: '用户名', sort: true, edit: 'text'}
+                , {field: 'actualname', title: '姓名', edit: 'text'}
+                , {field: 'phone', title: '电话', sort: true, edit: 'text', width: 120}
+                , {field: 'role_name', title: '角色', width: 90}
+                , {field: 'age', title: '年龄', sort: true, edit: 'text', width: 80}
+                , {field: 'id_card', title: '身份证', sort: true, edit: 'text'}
+                , {field: 'addtime', title: '入职时间', sort: true, width: 110}
+                , {field: 'logintime', title: '最近登录时间', sort: true}
+                , {field: 'status', title: '状态', templet: '#switchTpl', width: 90}
+                , {field: 'operating', templet: '#operating', title: '操作'}
+            ]]
+        });
+        //点击搜索
+        var $ = layui.$, active = {
+            reload: function () {
+                var title = $('#title').val();
+                var roleid = $('#roleid').val();
+                table.reload('demo', {
+                    url: "{:url('admin/getadminlist')}",
+                    method: 'get',
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    },
+                    where: {
+                        title: title,
+                        roleid:roleid
+                    }
+                })
+            }
+        };
+        $('#search').on('click', function () {
+            //console.log(111);
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+        //监听单元格编辑
+        table.on('edit(demo)',
+            function (obj) {
+                var id = obj.data.id;//获取当前列的id
+                var field = obj.field;//获取修改的字段
+                var value = obj.value;//获取要修改的值
+
+                //判断字段并给别名
+                if(field == 'age'){
+                    var field_name = '年龄';
+                }else if(field == 'phone'){
+                    var field_name = '电话';
+                }else if(field == 'id_card'){
+                    var field_name = '身份证';
+                }else if(field == 'name'){
+                    var field_name = '用户名';
+                }else if(field == 'actualname'){
+                    var field_name = '姓名';
+                }
+
+                //判断是否是只能输入数字的字段
+                if(field =='age' || field == 'id_card' || field == 'phone'){
+                    //判断输入是否合法
+                    if(field =='age' && value > 100){
+                        layer.msg('年龄不正确',{time:1000});
+                        return;
+                    }
+                    if(field =='phone' && value.length != 11){
+                        layer.msg('手机号格式不正确',{time:1000});
+                        return;
+                    }
+                    if(field =='id_card' && value.length != 18){
+                        layer.msg('身份证号格式不正确',{time:1000});
+                        return;
+                    }
+
+                    if(!isNaN(value)){
+                        $.ajax({
+                            url: "{:url('admin/table_edit')}",
+                            type: 'post',
+                            dataType: "json",
+                            data: {'id': id, 'field': field, 'value': value},
+                            success: function (data) {
+                                if (data.code == 1) {
+                                    layer.msg(field_name + ' 字段更改为：' + value,{time: 1000});
+                                } else {
+                                    layer.msg('修改失败');
+                                }
+                            },
+                            error: function (data) {
+                                layer.msg('修改失败');
+                            }
+                        });
+                    }else{
+                        layer.msg('只能输入数字', {time: 1000});
+                    }
+                }else{
+                    //判断输入是否合法
+                    if(field =='name' && value.length > 12){
+                        layer.msg('用户长太长',{time:1000});
+                        return;
+                    }
+                    if(field =='actualname' && value.length > 8){
+                        layer.msg('姓名太长',{time:1000});
+                        return;
+                    }
+
+                    $.ajax({
+                        url: "{:url('admin/table_edit')}",
+                        type: 'post',
+                        dataType: "json",
+                        data: {'id': id, 'field': field, 'value': value},
+                        success: function (data) {
+                            if (data.code == 1) {
+                                layer.msg(field_name + ' 更改为：' + value,{time: 1000});
+                            } else {
+                                layer.msg('修改失败');
+                            }
+                        },
+                        error: function (data) {
+                            layer.msg('修改失败');
+                        }
+                    });
+                }
+            });
+
+        //批量删除
+        $("#delAll").on('click', function (obj) {
+            layer.confirm('确认要删除吗？',function(index) {
+                var checkStatus = table.checkStatus('demo');
+                if (checkStatus.data.length == 0) {
+                    parent.layer.msg('请先选择要删除的数据行！', {icon: 2});
+                    return;
+                }
+                var ids = "";
+                for (var i = 0; i < checkStatus.data.length; i++) {
+                    ids += checkStatus.data[i].id + ",";
+                }
+                parent.layer.msg('删除中...', {icon: 16, shade: 0.3, time: 500});
+                $.ajax({
+                    url: "{:url('admin/delall')}",
+                    type: 'post',
+                    dataType: "json",
+                    data: {'id': ids},
+                    success: function (data) {
+                        console.log(data);
+                        if (data.code == 1) {
+                            parent.layer.msg('删除成功！', { time: 1000, shade: 0.2});
+                            location.reload(true);
+                        } else {
+                            layer.msg('删除失败');
+                        }
+                    },
+                    error: function (data) {
+                        layer.msg('删除失败');
+                    }
+                });
+                return false;
+            });
+        });
+    });//use函数结束
+</script>
+
+<script>
+    /*用户-停用*/
+    function member_stop(obj, id) {
+        if ($(obj).attr('title') == '停用') {
+            layer.confirm('确认要停用吗？', function (index) {
+                if ($(obj).attr('title') == '停用') {
+                    $.ajax({
+                        url: "{:url('admin/status')}",
+                        type: 'post',
+                        dataType: "json",
+                        data: {'id': id, 'status': 1},
+                        success: function (data) {
+                            console.log(data);
+                            if (data.code == 1) {
+                                $(obj).attr('title', '启用')
+                                $(obj).find('i').html('&#xe62f;');
+                                $(obj).parents("tr").find("#td-status").addClass('layui-btn-disabled').html('已停用');
+                                layer.msg('已停用!', {time: 1000});
+                            } else {
+                                layer.msg('修改失败');
+                            }
+                        },
+                        error: function (data) {
+                            layer.msg('修改失败');
+                        }
+                    });
+                }
+                return false;
+            });
+        } else {
+            layer.confirm('确认要启用吗？', function (index) {
+                console.log('启用');
+                console.log(id);
+                if ($(obj).attr('title') == '启用') {
+                    $.ajax({
+                        url: "{:url('admin/status')}",
+                        type: 'post',
+                        dataType: "json",
+                        data: {'id': id, 'status': 0},
+                        success: function (data) {
+                            if (data.code == 1) {
+                                $(obj).attr('title', '停用')
+                                $(obj).find('i').html('&#xe601;');
+                                $(obj).parents("tr").find("#td-status").removeClass('layui-btn-disabled').html('已启用');
+                                layer.msg('已启用!', {time: 1000});
+                            } else {
+                                layer.msg(data.msg);
+                            }
+                        },
+                        error: function (data) {
+                            layer.msg(data.msg);
+                        }
+                    });
+                }
+                return false;
+            });
+        }
+    }
+
+    /*用户-删除*/
+    function admin_del(obj, id) {
+        layer.confirm('确认要删除吗？', function (index) {
+            //发异步删除数据
+            $.ajax({
+                url: "{:url('admin/del')}",
+                type: 'post',
+                dataType: "json",
+                data: {'id': id},
+                success: function (data) {
+                    console.log(data);
+                    if (data.code == 1) {
+                        $(obj).parents("tr").remove();
+                        layer.msg('已删除!', { time: 1000});
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                },
+                error: function (data) {
+                    layer.msg('删除失败');
+                }
+            });
+        });
+    }
+</script>
+
+<!--操作-->
+<script type="text/html" id="operating">
+    {{# if(d.status == 0) { }}
+    <a onclick="member_stop(this,{{d.id}})" href="javascript:;" title="停用">
+        <i class="layui-icon" id="icon">&#xe601;</i>
+    </a>
+    {{# }else{ }}
+    <a onclick="member_stop(this,{{d.id}})" href="javascript:;" title="启用">
+        <i class="layui-icon" id="icon1">&#xe62f;</i>
+    </a>
+    {{# } }}
+
+    <a title="查看" onclick="xadmin.open('查看管理员详情','{:url('admin/view')}?id={{d.id}}',600,400)" href="javascript:;">
+        <i class="layui-icon">&#xe63c;</i></a>
+    <a title="编辑" onclick="xadmin.open('编辑管理员','{:url('admin/edit')}?id={{d.id}}',600,450)" href="javascript:;">
+        <i class="layui-icon">&#xe642;</i>
+    </a>
+    <a title="删除" onclick="admin_del(this,'{{d.id}}')" href="javascript:;">
+        <i class="layui-icon">&#xe640;</i>
+    </a>
+</script>
+
+<!--添加与删除按钮-->
+<script type="text/html" id="titleTpl">
+    <div class="layui-card-header">
+        <button class="layui-btn layui-btn-danger" id="delAll"><i class="layui-icon"></i>批量删除</button>
+        <button class="layui-btn" onclick="xadmin.open('添加管理员','{:url('admin/add')}',600,450)"><i
+                class="layui-icon"></i>添加
+        </button>
+    </div>
+</script>
+
+<!--管理员状态-->
+<script type="text/html" id="switchTpl">
+    {{# if(d.status == 0) { }}
+    <span class="layui-btn layui-btn-normal layui-btn-mini" id="td-status">已启用</span>
+    {{# }else{ }}
+    <span class="layui-btn layui-btn-normal layui-btn-mini layui-btn-disabled" id="td-status">已停用</span>
+    {{# } }}
+</script>
+{include file="public/footer"}

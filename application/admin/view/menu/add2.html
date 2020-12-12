@@ -1,0 +1,88 @@
+{include file='public/head'/}
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form">
+
+            <div class="layui-form-item">
+                <label for="name" class="layui-form-label">
+                    <span class="x-red">*</span>名称
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" id="name" name="auth_name" required="" lay-verify="required"
+                           autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">
+                    <span class="x-red">*</span>目录名称
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label for="name" class="layui-form-label">
+                    <span class="x-red">*</span>操作路径
+                </label>
+                <div class="layui-input-inline">
+                    <input type="text" name="auth_path" required="" lay-verify="required"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+            <!--隐藏域-->
+            <input type="hidden" name="auth_pid" value="{$parent_id}">
+            <div class="layui-form-item">
+                <label for="name" class="layui-form-label">
+                </label>
+                <button class="layui-btn" lay-filter="add" lay-submit="">
+                    增加
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+<script>layui.use(['form', 'layer'],
+    function () {
+        $ = layui.jquery;
+        var form = layui.form,
+            layer = layui.layer;
+
+        //自定义验证规则
+        form.verify({
+
+        });
+
+        //监听提交
+        form.on('submit(add)',
+            function (data) {
+                $.ajax({
+                    url: "{:url('menu/save2')}",
+                    type: 'post',
+                    dataType: "json",
+                    data: data.field,
+                    beforeSend: function () {
+                        var index = layer.load(2);
+                        layer.close(index);
+                    },
+                    success: function (res) {
+                        if (res.code == 1) {
+                            layer.msg("增加成功", {
+                                    time: 1000
+                                },
+                                function () {
+                                    //关闭当前frame
+                                    xadmin.close();
+                                    // 可以对父窗口进行刷新
+                                    xadmin.father_reload();
+                                });
+                        } else {
+                            layer.msg(res.msg);
+                        }
+                    },
+                    error: function (res) {
+                        layer.msg(res.msg);
+                    }
+                });
+                return false;
+            });
+
+    });</script>
+{include file="public/footer"}

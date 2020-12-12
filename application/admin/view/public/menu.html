@@ -1,0 +1,26 @@
+<!-- 左侧菜单开始 -->
+<div class="left-nav">
+    <div id="side-nav">
+        <ul id="nav">
+            {foreach $top_menu as $k=>$v}
+                <li>
+                    <a href="javascript:;">
+                        <i class="left-nav-li {$v.icon_font}" lay-tips="{$v.auth_name}"></i>
+                        <cite>{$v.auth_name}</cite>
+                        <i class="iconfont nav_right">&#xe697;</i></a>
+                    <ul class="sub-menu">
+                        {foreach $v.menu_list2 as $key=>$value}
+                        <li>
+                            <a onclick="xadmin.add_tab('{$value.auth_name}','/admin.php/admin/{$value.auth_path}')">
+                                <i class="iconfont">&#xe6a7;</i>
+                                <cite>{$value.auth_name}</cite></a>
+                        </li>
+                        {/foreach}
+                    </ul>
+                </li>
+            {/foreach}
+        </ul>
+    </div>
+</div>
+<!-- <div class="x-slide_left"></div> -->
+<!-- 左侧菜单结束 -->
